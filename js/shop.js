@@ -64,32 +64,20 @@ var products = [
   },
 ];
 
-// => Reminder, it's extremely important that you debug your code.
-// ** It will save you a lot of time and frustration!
-// ** You'll understand the code better than with console.log(), and you'll also find errors faster.
-// ** Don't hesitate to seek help from your peers or your mentor if you still struggle with debugging.
-
-// Improved version of cartList. Cart is an array of products (objects), but each one has a quantity field to define its quantity, so these products are not repeated.
 var cart = [];
 
 var total = 0;
 
-// Exercise 1
 function buy(id) {
-  // Find the product by id
   const product = products.find((p) => p.id === id);
   if (product) {
-    // Check if the product is already in the cart
     const cartItem = cart.find((item) => item.id === id);
     if (cartItem) {
-      // If it is, increase the quantity
       cartItem.quantity += 1;
     } else {
-      // If not, add it to the cart with quantity 1
       cart.push({ ...product, quantity: 1 });
     }
   }
-  // Update the cart count
   document.getElementById("count_product").innerText = cart.reduce(
     (acc, item) => acc + item.quantity,
     0
@@ -107,10 +95,20 @@ function calculateTotal() {
 }
 
 function applyPromotionsCart() {
-  // Apply promotions to each item in the array "cart"
+  cart.forEach((item) => {
+    if (item.id === 1 && item.quantity >= 3) {
+      item.subtotalWithDiscount = (item.price * item.quantity * 0.8).toFixed(2);
+    } else if (item.id === 3 && item.quantity >= 10) {
+      item.subtotalWithDiscount = (item.price * item.quantity * 0.7).toFixed(2);
+    } else {
+      item.subtotalWithDiscount = (item.price * item.quantity).toFixed(2);
+    }
+  });
 }
 
 function printCart() {
+  applyPromotionsCart();
+
   const cartList = document.getElementById("cart_list");
   cartList.innerHTML = "";
 
@@ -128,8 +126,8 @@ function printCart() {
     productQuantity.innerText = item.quantity;
 
     const productTotal = document.createElement("td");
-    const totalPrice = item.price * item.quantity;
-    productTotal.innerText = `$${totalPrice.toFixed(2)}`;
+    const totalPrice = item.subtotalWithDiscount || item.price * item.quantity;
+    productTotal.innerText = `$${totalPrice}`;
 
     row.appendChild(productName);
     row.appendChild(productPrice);
@@ -141,7 +139,8 @@ function printCart() {
 
   const totalPriceElement = document.getElementById("total_price");
   const totalPrice = cart.reduce(
-    (acc, item) => acc + item.price * item.quantity,
+    (acc, item) =>
+      acc + parseFloat(item.subtotalWithDiscount || item.price * item.quantity),
     0
   );
   totalPriceElement.innerText = totalPrice.toFixed(2);
