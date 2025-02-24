@@ -106,6 +106,23 @@ function applyPromotionsCart() {
   });
 }
 
+function removeFromCart(id) {
+  const cartItem = cart.find((item) => item.id === id);
+  if (cartItem) {
+    if (cartItem.quantity > 1) {
+      cartItem.quantity -= 1;
+    } else {
+      const itemIndex = cart.findIndex((item) => item.id === id);
+      cart.splice(itemIndex, 1);
+    }
+    document.getElementById("count_product").innerText = cart.reduce(
+      (acc, item) => acc + item.quantity,
+      0
+    );
+    printCart();
+  }
+}
+
 function printCart() {
   applyPromotionsCart();
 
@@ -129,10 +146,15 @@ function printCart() {
     const totalPrice = item.subtotalWithDiscount || item.price * item.quantity;
     productTotal.innerText = `$${totalPrice}`;
 
+    const removeButton = document.createElement("td");
+    removeButton.innerHTML = `<button class="btn btn-danger btn-sm" onclick="removeFromCart(${item.id})">X</button>`;
+    removeButton.classList.add("remove-button");
+
     row.appendChild(productName);
     row.appendChild(productPrice);
     row.appendChild(productQuantity);
     row.appendChild(productTotal);
+    row.appendChild(removeButton);
 
     cartList.appendChild(row);
   });
@@ -145,9 +167,6 @@ function printCart() {
   );
   totalPriceElement.innerText = totalPrice.toFixed(2);
 }
-
-// Exercise 7
-function removeFromCart(id) {}
 
 function open_modal() {
   printCart();
